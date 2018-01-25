@@ -233,7 +233,7 @@ function kws_yourls_custom_url($url = '') {
 		}
 	}
 
-	return yourls_add_query_arg($fields, $url);
+	return yourls_add_query_arg_rework($fields, $url);
 }
 
 yourls_add_action('admin_init', 'kws_yourls_error_messages');
@@ -275,7 +275,7 @@ function kws_yourls_admin_init() {
 			}
 		}
 
-		$_GET['u'] = $_REQUEST['u'] = yourls_add_query_arg($query, $_REQUEST['u']);
+		$_GET['u'] = $_REQUEST['u'] = yourls_add_query_arg_rework($query, $_REQUEST['u']);
 
 		return;
 	}
@@ -410,7 +410,7 @@ function kws_yourls_add_analytics_tracking_code($return, $keyword, $field, $notf
 	}
 
 	// Add back in the query string
-	$url = yourls_add_query_arg($query, $urlStripped);
+	$url = yourls_add_query_arg_rework($query, $urlStripped);
 
 	return $url;
 }
