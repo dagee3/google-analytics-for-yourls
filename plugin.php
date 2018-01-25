@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Google Analytics
-Plugin URI: http://katz.co/yourls-analytics/
+Plugin URI: http://github.com/dagee3/google-analytics-for-yourls
 Description: Easily add Google Analytics tracking tags to your generated links.
-Version: 1.1
-Author: Katz Web Services, Inc.
-Author URI: http://www.katzwebservices.com
+Version: 1.2
+Author: Darrell Agee
+Author URI: http://github.com/dagee3
 Settings: <a href="?page=google_analytics">Configure settings</a>
  */
 
@@ -376,16 +376,18 @@ function kws_yourls_add_analytics_tracking_code($return, $keyword, $field, $notf
 	$parsed['scheme'] = isset($parsed['scheme']) ? $parsed['scheme'] : 'http';
 	$parsed['host'] = isset($parsed['host']) ? $parsed['host'] : '';
 	$parsed['path'] = isset($parsed['path']) ? $parsed['path'] : '';
+	$parsed['fragment'] = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
-	$urlStripped = $parsed['scheme'] . '://' . $parsed['host'] . $parsed['path'];
+	$urlStripped = $parsed['scheme'] . '://' . $parsed['host'] . $parsed['path'] . $parsed['fragment'];
 	$urlQueryString = array();
 	$query = kws_yourls_analytics_defaults();
 
-	$urlParsed = parse_url($url);
+	$queryPosition = strpos($url, '?') + 1; //The +1 cuts off the ? from the string cut below
+	$urlParsed = substr($url, $queryPosition);
 
 	// Are there query args in the long URL? We'll want an array of those, thanks.
-	if (isset($urlParsed['query'])) {
-		parse_str($urlParsed['query'], $urlQueryString);
+	if (isset($urlParsed)) {
+	  parse_str($urlParsed, $urlQueryString);
 	}
 
 	// Override trumps embedded long URL query args
@@ -524,4 +526,84 @@ function kws_yourls_process_array($query) {
 
 	return $query;
 
+}
+
+/**
+ * Add a query var to a URL and return URL. Completely stolen from WP.
+ *
+ * Works with one of these parameter patterns:
+ *     array( 'var' => 'value' )
+ *     array( 'var' => 'value' ), $url
+ *     'var', 'value'
+ *     'var', 'value', $url
+ * If $url omitted, uses $_SERVER['REQUEST_URI']
+ *
+ * The result of this function call is a URL : it should be escaped before being printed as HTML
+ *
+ * @since 1.5
+ * @param string|array $param1 Either newkey or an associative_array.
+ * @param string       $param2 Either newvalue or oldquery or URI.
+ * @param string       $param3 Optional. Old query or URI.
+ * @return string New URL query string.
+ */
+function yourls_add_query_arg_rework() {
+	$ret = '';
+	if ( is_array( func_get_arg(0) ) ) {
+		if ( @func_num_args() < 2 || false === @func_get_arg( 1 ) )
+			$uri = $_SERVER['REQUEST_URI'];
+		else
+			$uri = @func_get_arg( 1 );
+	} else {
+		if ( @func_num_args() < 3 || false === @func_get_arg( 2 ) )
+			$uri = $_SERVER['REQUEST_URI'];
+		else
+			$uri = @func_get_arg( 2 );
+	}
+
+	$uri = str_replace( '&amp;', '&', $uri );
+
+	if ( preg_match( '|^https?://|i', $uri, $matches ) ) {
+		$protocol = $matches[0];
+		$uri = substr( $uri, strlen( $protocol ) );
+	} else {
+		$protocol = '';
+	}
+
+	if ( strpos( $uri, '?' ) !== false ) {
+		$parts = explode( '?', $uri, 2 );
+		if ( 1 == count( $parts ) ) {
+			$base = '?';
+			$query = $parts[0];
+		} else {
+			$base = $parts[0] . '?';
+			$query = $parts[1];
+		}
+	} elseif ( !empty( $protocol ) || strpos( $uri, '=' ) === false ) {
+		$base = $uri . '?';
+		$query = '';
+	} else {
+		$base = '';
+		$query = $uri;
+	}
+
+	parse_str( $query, $qs );
+	$qs = yourls_urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
+	if ( is_array( func_get_arg( 0 ) ) ) {
+		$kayvees = func_get_arg( 0 );
+		$qs = array_merge( $qs, $kayvees );
+	} else {
+		$qs[func_get_arg( 0 )] = func_get_arg( 1 );
+	}
+
+	foreach ( (array) $qs as $k => $v ) {
+		if ( $v === false )
+			unset( $qs[$k] );
+	}
+
+	$ret = http_build_query( $qs );
+	$ret = trim( $ret, '?' );
+	$ret = preg_replace( '#=(&|$)#', '$1', $ret );
+	$ret = $protocol . $base . $ret;
+	$ret = rtrim( $ret, '?' );
+	return $ret;
 }

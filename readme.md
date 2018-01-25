@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 1.2
+
+* Fixed the issue where links with #'s would not redirect correctly with this plugin'
+
 ### 1.1
 
 * Fixes compatibility with YOURLS 1.7+. Thanks [@ifnull](https://github.com/ifnull) and [@sirtet](https://github.com/sirtet)
