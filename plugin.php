@@ -382,8 +382,11 @@ function kws_yourls_add_analytics_tracking_code($return, $keyword, $field, $notf
 	$urlQueryString = array();
 	$query = kws_yourls_analytics_defaults();
 
-	$queryPosition = strpos($url, '?') + 1; //The +1 cuts off the ? from the string cut below
-	$urlParsed = substr($url, $queryPosition);
+	if (preg_match('/?/', $url))
+	{
+		$queryPosition = strpos($url, '?') + 1; //The +1 cuts off the ? from the string cut below
+		$urlParsed = substr($url, $queryPosition);
+	}
 
 	// Are there query args in the long URL? We'll want an array of those, thanks.
 	if (isset($urlParsed)) {
