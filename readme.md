@@ -2,6 +2,11 @@
 
 ## Changelog
 
+## 1.2.1
+
+* Fixed another issue with formatting and design (Thank you tobozo)
+* Fixed an issue where links without UTM codes would be broken (Thank you tobozo)
+
 ### 1.2
 
 * Fixed the issue where links with #'s would not redirect correctly with this plugin'
