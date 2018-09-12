@@ -92,6 +92,17 @@ function kws_yourls_add_analytics_do_page() {
 			cursor: pointer;
 		 }
 		 .req { color: red; }
+     
+      div#more_tracking_code_info:target {
+          display: block;
+      }
+      .utm_fields label {
+          display: block;
+          clear: both;
+      }
+      .utm_fields label input {
+          float: right;
+      }
 	</style>
 	<h2>Google Analytics Settings</h2>
 
@@ -113,7 +124,7 @@ $analytics_defaultsexample = $analytics_defaults;
 			</code><br/>
 		</p>
 		<p class="description"><strong>Note:</strong> These default settings can be overridden by shortening an URL with the tracking tags in place already. If you want to override (or not override), configure the "Override existing tracking tags?" setting below.</p>
-		<p style="clear:both;">
+		<p class="utm_fields" style="clear:both;max-width:25em">
 			<label for="utm_source" style="padding-left:.75em;">Source<span class="req" title="Required">*</span> <input id="utm_source" type="text" size="15" name="analytics_defaults[utm_source]" value="<?php echo $analytics_defaults['utm_source'];?>"></label>
 			<label for="utm_medium" style="padding-left:.75em;">Medium<span class="req" title="Required">*</span> <input id="utm_medium" type="text" size="15" name="analytics_defaults[utm_medium]" value="<?php echo $analytics_defaults['utm_medium'];?>"></label>
 			<label for="utm_campaign" style="padding-left:.75em;">Campaign Name <input id="utm_campaign" type="text" size="15" name="analytics_defaults[utm_campaign]" value="<?php echo $analytics_defaults['utm_campaign'];?>"></label>
@@ -383,7 +394,11 @@ function kws_yourls_add_analytics_tracking_code($return, $keyword, $field, $notf
 	$query = kws_yourls_analytics_defaults();
 
 	$queryPosition = strpos($url, '?') + 1; //The +1 cuts off the ? from the string cut below
-	$urlParsed = substr($url, $queryPosition);
+  if($queryPosition==1) {
+    // what if the URL did NOT have a question mark ??? 
+  } else {
+	  $urlParsed = substr($url, $queryPosition);
+  }
 
 	// Are there query args in the long URL? We'll want an array of those, thanks.
 	if (isset($urlParsed)) {
